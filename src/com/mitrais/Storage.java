@@ -6,8 +6,8 @@ import java.util.List;
 public class Storage {
     public static List<Account> persons() {
         List<Account> list = new ArrayList<>();
-        Account a = new Account("John Doe",100,12108,112233);
-        Account b = new Account("Jane Doe",30,932012,112244);
+        Account a = new Account("John Doe",100,"012108",112233);
+        Account b = new Account("Jane Doe",30,"932012",112244);
         list.add(a);
         list.add(b);
         return list;

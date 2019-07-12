@@ -3,12 +3,11 @@ package com.mitrais;
 import java.math.BigDecimal;
 
 public class Account {
-    private String name;
+    private String name,pin;
     private double balance;
     private int accountnumber;
-    private long pin;
 
-    public Account(String name, double balance, long pin, int accountnumber) {
+    public Account(String name, double balance, String pin, int accountnumber) {
         this.name = name;
         this.balance = balance;
         this.pin = pin;
@@ -35,11 +34,11 @@ public class Account {
         this.balance = balance;
     }
 
-    public long getPin() {
+    public String getPin() {
         return pin;
     }
 
-    public void setPin(long pin) {
+    public void setPin(String pin) {
         this.pin = pin;
     }
 
