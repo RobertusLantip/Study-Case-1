@@ -1,6 +1,5 @@
 package com.mitrais;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,16 +24,19 @@ public class Main{
         System.out.print("\nEnter PIN : ");
         pin = input.next();
         if(accnumber.length()!=6){
-            System.out.println("Account Number should have 6 digits length");
-        }else if(accnumber.contains("[a-zA-Z]+"))
+            System.out.println("\nAccount Number should have 6 digits length");
+            welcomeScreen();
+        }else if(!accnumber.matches("[0-9]+"))
         {
-            System.out.println("Account Number should only contains numbers");
+            System.out.println("\nAccount Number should only contains numbers");
+            welcomeScreen();
         }else if(pin.length()!=6){
-            System.out.println("PIN should have 6 digits length");
-        }else if(pin.contains("[a-zA-Z]+")){
-            System.out.println("PIN should only contains numbers");
+            System.out.println("\nPIN should have 6 digits length");
+            welcomeScreen();
+        }else if(!pin.matches("[0-9]+")){
+            System.out.println("\nPIN should only contains numbers");
+            welcomeScreen();
         }else{
-
             if(Validation.validation(Integer.parseInt(accnumber),pin) != null){
                 user = data.stream().filter(x -> Integer.parseInt(accnumber) == x.getAccountnumber()).findAny().orElse(null);
                 mainMenu(user);
@@ -62,6 +64,8 @@ public class Main{
                     fundTransfer1(user);
                     break;
             case "3": welcomeScreen();
+            break;
+            default: mainMenu(user);
             }
     }
 
@@ -78,19 +82,37 @@ public class Main{
         menu = input.nextLine();
         switch (menu){
             case "1":
-                summary(user,1);
+                if(user.getBalance()<10){
+                    System.out.println("\nInsufficient balance $"+user.getBalance());
+                    withdraw(user);
+                }
+                else{
+                    summary(user,1);
+                }
                 break;
             case "2":
-                summary(user,2);
+                if(user.getBalance()<50){
+                    System.out.println("\nInsufficient balance $"+user.getBalance());
+                    withdraw(user);
+                }else{
+                    summary(user,2);
+                }
                 break;
             case "3":
-                summary(user,3);
+                if(user.getBalance()<100){
+                    System.out.println("\nInsufficient balance $"+user.getBalance());
+                    withdraw(user);
+                }else{
+                    summary(user,3);
+                }
                 break;
             case "4":
                 summary(user,4);
                 break;
             case "5":
                 mainMenu(user);
+                break;
+                default: mainMenu(user);
         }
     }
 
@@ -112,9 +134,11 @@ public class Main{
                 System.out.println("\n1. Transaction");
                 System.out.println("2. Exit");
                 System.out.print("Choose Option[2] : "); choose = input.nextLine();
-                if(choose == "1"){
+                if("1".equals(choose)){
                     mainMenu(user);
-                }else if(choose == "2"){
+                }else if("2".equals(choose)){
+                    welcomeScreen();
+                }else{
                     welcomeScreen();
                 }
                 break;
@@ -128,9 +152,11 @@ public class Main{
                 System.out.println("\n1. Transaction");
                 System.out.println("2. Exit");
                 System.out.print("Choose Option[2] : "); choose = input.nextLine();
-                if(choose == "1"){
+                if("1".equals(choose)){
                     mainMenu(user);
-                }else if(choose == "2"){
+                }else if("2".equals(choose)){
+                    welcomeScreen();
+                }else{
                     welcomeScreen();
                 }
                 break;
@@ -144,17 +170,29 @@ public class Main{
                 System.out.println("\n1. Transaction");
                 System.out.println("2. Exit");
                 System.out.print("Choose Option[2] : "); choose = input.nextLine();
-                if(choose == "1"){
+                if("1".equals(choose)){
                     mainMenu(user);
-                }else if(choose == "2"){
+                }else if("2".equals(choose)){
+                    welcomeScreen();
+                }else{
                     welcomeScreen();
                 }
                 break;
             case 4:
                 System.out.println("----=======SUMMARY=======----");
                 System.out.print("Enter amount to withdraw : ");
-                int value = input.nextInt();
-                user.setBalance(user.getBalance()-value);
+                String value = input.next();
+                if(!value.matches("[0-9]+") && Double.parseDouble(value)%10 != 0){
+                    System.out.print("\nInvalid ammount");
+                    summary(user,choice);
+                }else if(Double.parseDouble(value) >1000){
+                    System.out.print("\nMaximum amount to withdraw is $1000");
+                    summary(user,choice);
+                }else if(user.getBalance()<Double.parseDouble(value)){
+                    System.out.print("\nInsufficient balance $"+value);
+                    withdraw(user);
+                }
+                user.setBalance(user.getBalance()-Double.parseDouble(value));
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
                 System.out.println("\nDate : "+formatDateTime);
                 System.out.println("Withdraw : $"+value);
@@ -162,9 +200,11 @@ public class Main{
                 System.out.println("\n1. Transaction");
                 System.out.println("2. Exit");
                 System.out.print("Choose Option[2] : "); choose = input.nextLine();
-                if(choose == "1"){
+                if("1".equals(choose)){
                     mainMenu(user);
-                }else if(choose == "2"){
+                }else if("2".equals(choose)){
+                    welcomeScreen();
+                }else{
                     welcomeScreen();
                 }
                 break;
@@ -177,32 +217,63 @@ public class Main{
         System.out.println("Please enter destination account and \n" +
                 "press enter to continue or \n" +
                 "press cancel (Esc) to go back to Transaction: ");
-        int accnumber = input.nextInt();
-        fundTransfer2(user,accnumber);
+        String accnumber = input.next();
+        if(!accnumber.matches("[0-9]+")){
+            System.out.println("\nInvalid account");
+            fundTransfer1(user);
+        }else {
+            Account target = data.stream().filter(x -> Integer.parseInt(accnumber) == x.getAccountnumber()).findAny().orElse(null);
+            if(target == null){
+                System.out.println("\nInvalid account");
+                fundTransfer1(user);
+            }else{
+                fundTransfer2(user,accnumber);
+            }
+        }
     }
 
-    public void fundTransfer2(Account user,int accnumber){
+    public void fundTransfer2(Account user,String accnumber){
         Scanner input = new Scanner(System.in);
         System.out.println("----=======FUND TRANSFER=======----");
         System.out.println("Please enter transfer amount and \n" +
                 "press enter to continue or \n" +
                 "press cancel (Esc) to go back to Transaction: ");
-        int amount = input.nextInt();
-        fundTransfer3(user,accnumber,amount);
+        String amount = input.next();
+        if(!amount.matches("[0.0-9]+")){
+            System.out.println("\nInvalid amount");
+            fundTransfer2(user,accnumber);
+        }else if(Double.parseDouble(amount) < 1){
+            System.out.println("\nMinimum amount to withdraw is $1");
+            fundTransfer2(user,accnumber);
+        }else if(Double.parseDouble(amount) > 1000){
+            System.out.println("\nMaximum amount to withdraw is $1000");
+            fundTransfer2(user,accnumber);
+        }else if(user.getBalance()<Double.parseDouble(amount)){
+            System.out.println("\nInsufficient balance $"+amount);
+            fundTransfer2(user,accnumber);
+        }
+        else{
+            fundTransfer3(user,accnumber,amount);
+        }
     }
 
-    public void fundTransfer3(Account user,int accnumber, int amount){
+    public void fundTransfer3(Account user,String accnumber, String amount){
         Scanner input = new Scanner(System.in);
-        int refnumber = 0;
+        String refnumber;
         System.out.println("----=======FUND TRANSFER=======----");
         System.out.println("Please enter reference number (Optional) and \n" +
                 "press enter to continue or \n" +
                 "press cancel (Esc) to go back to Transaction: ");
-        refnumber = input.nextInt();
-        fundTransfer4(user,accnumber,amount,refnumber);
+        refnumber = input.next();
+        if(!refnumber.matches("[0-9]+")){
+            System.out.println("\nInvalid Reference Number");
+            fundTransfer3(user,accnumber,amount);
+        }else{
+            fundTransfer4(user,accnumber,amount,refnumber);
+        }
     }
 
-    public void fundTransfer4(Account user,int accnumber,int amount, int refnumber){
+    public void fundTransfer4(Account user,String accnumber,String amount, String refnumber){
         Scanner input = new Scanner(System.in);
         System.out.println("----=======FUND TRANSFER=======----");
         System.out.println("Transfer Confirmation");
@@ -215,11 +286,11 @@ public class Main{
         int choose = input.nextInt();
         switch (choose){
             case 1:
-                Account target = data.stream().filter(x -> accnumber == x.getAccountnumber()).findAny().orElse(null);
-                target.setBalance(target.getBalance() + amount);
-                data.set(Storage.getIndex(accnumber),target);
+                Account target = data.stream().filter(x -> Integer.parseInt(accnumber) == x.getAccountnumber()).findAny().orElse(null);
+                target.setBalance(target.getBalance() + Double.parseDouble(amount));
+                data.set(Storage.getIndex(Integer.parseInt(accnumber)),target);
 
-                user.setBalance(user.getBalance() - amount);
+                user.setBalance(user.getBalance() - Double.parseDouble(amount));
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
 
                 System.out.println("----=======FUND TRANSFER SUMMARY=======----");
@@ -227,11 +298,20 @@ public class Main{
                 System.out.println("Transfer Amount \t\t: $"+amount);
                 System.out.println("Reference Number \t\t: "+refnumber);
                 System.out.println("Balance \t\t: "+user.getBalance());
-                System.out.println("1. Confirm Trx\n" +
-                        "2. Cancel Trx\n" +
+                System.out.println("1. Transaction\n" +
+                        "2. Exit\n" +
                         "Choose option[2]: ");
                 choose = input.nextInt();
+                if(choose == 1){
+                    mainMenu(user);
+                }else{
+                    welcomeScreen();
+                }
                 break;
+            case 2:
+                mainMenu(user);
+                break;
+                default: mainMenu(user);
         }
     }
 }
