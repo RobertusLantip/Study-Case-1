@@ -2,15 +2,25 @@ package com.mitrais;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main{
 
+    int thid=0;
     List<Account> data = Storage.persons();
+    List<TransactionHistory> transactionHistories= new ArrayList<>();
     public static void main(String[] args) {
-        Main main = new Main();
-        main.welcomeScreen();
+        if(!Storage.validationDuplicate(Storage.persons())){
+            System.out.println("Duplicate Record");
+        }else if(!Storage.validationAN(Storage.persons())){
+            System.out.println("Duplicate Account Number");
+        }
+        else {
+            Main main = new Main();
+            main.welcomeScreen();
+        }
     }
 
     public void welcomeScreen(){
@@ -54,6 +64,7 @@ public class Main{
         System.out.println("1. withdraw");
         System.out.println("2. Fund Transfer");
         System.out.println("3. Exit");
+        System.out.println("4. Transaction History");
         System.out.print("Please Choose Option[3] : ");
         menu = input.nextLine();
         switch (menu) {
@@ -65,8 +76,34 @@ public class Main{
                     break;
             case "3": welcomeScreen();
             break;
+            case "4" : transactionHistory(user);
+                break;
             default: mainMenu(user);
             }
+    }
+
+    public void transactionHistory(Account user){
+         try{
+            for (int i = 0; i < transactionHistories.size(); i++) {
+                if ("Withdraw".equals(transactionHistories.get(i).getType())) {
+                    System.out.println("---==WITHDRAW==---");
+                    System.out.println("Date : " + transactionHistories.get(i).getDate());
+                    System.out.println("Amount : " + transactionHistories.get(i).getAmount());
+                } else {
+                    System.out.println("\n---==FUND TRANSFER==---");
+                    System.out.println("Date : " + transactionHistories.get(i).getDate());
+                    System.out.println("Amount : " + transactionHistories.get(i).getAmount());
+                    System.out.println("To : " + transactionHistories.get(i).getAccountnumber());
+                    int accnumber = transactionHistories.get(i).getAccountnumber();
+                    Account target = data.stream().filter(x -> accnumber == x.getAccountnumber()).findAny().orElse(null);
+                    System.out.println("Name : " + target.getName());
+                }
+            }
+            mainMenu(user);
+        }catch (NullPointerException e){
+             System.out.println("No transaction histories\n");
+             mainMenu(user);
+         }
     }
 
     public void withdraw(Account user){
@@ -127,6 +164,7 @@ public class Main{
             case 1:
                 user.setBalance(user.getBalance()-10);
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
+                transactionHistories.add(new TransactionHistory(thid+1,"Withdraw",0,formatDateTime,10));
                 System.out.println("----=======SUMMARY=======----");
                 System.out.println("Date : "+formatDateTime);
                 System.out.println("Withdraw : $10");
@@ -145,6 +183,7 @@ public class Main{
             case 2:
                 user.setBalance(user.getBalance()-50);
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
+                transactionHistories.add(new TransactionHistory(thid+1,"Withdraw",0,formatDateTime,50));
                 System.out.println("----=======SUMMARY=======----");
                 System.out.println("Date : "+formatDateTime);
                 System.out.println("Withdraw : $50");
@@ -163,6 +202,7 @@ public class Main{
             case 3:
                 user.setBalance(user.getBalance()-100);
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
+                transactionHistories.add(new TransactionHistory(thid+1,"Withdraw",0,formatDateTime,100));
                 System.out.println("----=======SUMMARY=======----");
                 System.out.println("Date : "+formatDateTime);
                 System.out.println("Withdraw : $100");
@@ -194,6 +234,7 @@ public class Main{
                 }
                 user.setBalance(user.getBalance()-Double.parseDouble(value));
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
+                transactionHistories.add(new TransactionHistory(thid+1,"Withdraw",0,formatDateTime,Double.parseDouble(value)));
                 System.out.println("\nDate : "+formatDateTime);
                 System.out.println("Withdraw : $"+value);
                 System.out.println("Balance : $"+user.getBalance());
@@ -274,6 +315,10 @@ public class Main{
     }
 
     public void fundTransfer4(Account user,String accnumber,String amount, String refnumber){
+        LocalDateTime datetime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm a");
+        String formatDateTime = datetime.format(formatter);
+
         Scanner input = new Scanner(System.in);
         System.out.println("----=======FUND TRANSFER=======----");
         System.out.println("Transfer Confirmation");
@@ -292,6 +337,7 @@ public class Main{
 
                 user.setBalance(user.getBalance() - Double.parseDouble(amount));
                 data.set(Storage.getIndex(user.getAccountnumber()),user);
+                transactionHistories.add(new TransactionHistory(thid+1,"Fund Transfer",Integer.parseInt(accnumber),formatDateTime,Double.parseDouble(amount)));
 
                 System.out.println("----=======FUND TRANSFER SUMMARY=======----");
                 System.out.println("Destination Account \t: "+accnumber);
