@@ -1,24 +1,15 @@
-package com.mitrais;
+package com.mitrais.model;
 
 public class TransactionHistory {
-    private int id, accountnumber;
+    private int accountnumber;
     private String type, date;
     private double amount;
 
-    public TransactionHistory(int id, String type, int accountnumber, String date, double amount) {
-        this.id = id;
+    public TransactionHistory(String type, int accountnumber, String date, double amount) {
         this.type = type;
         this.accountnumber = accountnumber;
         this.date = date;
         this.amount = amount;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getType() {

@@ -1,9 +1,14 @@
 package com.mitrais;
 
+import com.mitrais.model.TransactionHistory;
+import com.mitrais.model.Account;
+
 import java.io.*;
 import java.util.*;
 
 public class Storage {
+    public static List<Account> data = persons();
+    public static List<TransactionHistory> transactionHistories= new ArrayList<>();
     public static List<Account> persons() {
         List<Account> list = new ArrayList<>();
 //        Account a = new Account("John Doe",100,"012108",112233);
@@ -24,6 +29,11 @@ public class Storage {
 //        list.add(a);
 //        list.add(b);
         return list;
+    }
+
+    public static List<TransactionHistory> historyList() {
+        List<TransactionHistory> transactionHistories= new ArrayList<>();
+        return transactionHistories;
     }
 
     public static boolean validationAN(List<Account> list){
