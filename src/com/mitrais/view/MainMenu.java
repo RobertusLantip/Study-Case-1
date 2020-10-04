@@ -26,11 +26,11 @@ public class MainMenu {
             case "2":
                 ft.fundTransfer1(user);
                 break;
-            case "3": ws.welcomeScreen();
+            case "3":
+            case "" :
+                ws.welcomeScreen();
                 break;
             case "4" : th.transactionHistory(user);
-                break;
-            case "" : ws.welcomeScreen();
                 break;
             default: mainMenu(user);
         }
