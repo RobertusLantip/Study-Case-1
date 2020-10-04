@@ -30,6 +30,8 @@ public class MainMenu {
                 break;
             case "4" : th.transactionHistory(user);
                 break;
+            case "" : ws.welcomeScreen();
+                break;
             default: mainMenu(user);
         }
     }
